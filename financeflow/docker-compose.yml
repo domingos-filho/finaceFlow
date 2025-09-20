@@ -15,7 +15,6 @@ services:
   api:
     build: ./backend
     restart: unless-stopped
--   env_file: .env
     environment:
       DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       FRONTEND_ORIGIN: ${FRONTEND_ORIGIN}
@@ -23,9 +22,8 @@ services:
       ADMIN_EMAIL: ${ADMIN_EMAIL}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
     depends_on: [db]
-  
+   
     networks: [financeflow]
-
 
   web:
     build: ./frontend
