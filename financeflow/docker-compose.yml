@@ -39,5 +39,6 @@ volumes:
   db_data:
 
 networks:
-  financeflow:
+  networks:
+  - financeflow
     driver: bridge
