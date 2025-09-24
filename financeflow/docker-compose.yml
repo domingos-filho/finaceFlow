@@ -41,14 +41,13 @@ services:
     build: ./frontend
     container_name: financeflow_web
     restart: unless-stopped
-    environment:
-      VITE_API_BASE_URL: ${VITE_API_BASE_URL}
     depends_on:
       - api
     ports:
-      - "5173:5173"
+      - "8080:80"
     networks:
       - financeflow
+
 
 volumes:
   db_data:
