@@ -26,6 +26,12 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:5432/${DB_NAME}
+      JWT_SECRET: ${JWT_SECRET}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN}
     networks:
       - financeflow
     ports:
@@ -36,8 +42,7 @@ services:
     container_name: financeflow_web
     restart: unless-stopped
     environment:
-      # Em produção, frontend chama API pelo domínio público
-      VITE_API_BASE_URL: https://api.appfinanceiro.domingos-autom.com.br
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL}
     depends_on:
       - api
     ports:
