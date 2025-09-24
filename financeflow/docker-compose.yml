@@ -27,7 +27,7 @@ services:
       db:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:5432/${DB_NAME}
+      DATABASE_URL: ${DATABASE_URL}
       JWT_SECRET: ${JWT_SECRET}
       ADMIN_EMAIL: ${ADMIN_EMAIL}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
@@ -43,11 +43,12 @@ services:
     restart: unless-stopped
     depends_on:
       - api
+    environment:
+      - VITE_API_BASE_URL=${VITE_API_BASE_URL}
     ports:
       - "8080:80"
     networks:
       - financeflow
-
 
 volumes:
   db_data:
@@ -55,3 +56,4 @@ volumes:
 networks:
   financeflow:
     driver: bridge
+
