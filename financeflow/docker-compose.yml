@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   db:
     image: postgres:16
@@ -23,7 +25,7 @@ services:
     depends_on:
       - db
     ports:
-      - "8000:8000"   # API acessível internamente e externamente na 8000
+      - "8000:8000"
 
   web:
     build:
@@ -36,4 +38,7 @@ services:
     depends_on:
       - api
     ports:
-      - "8080:80"     # FRONTEND na porta 8080 do host → 80 do container
+      - "8080:80"
+
+volumes:
+  pgdata:
