@@ -48,4 +48,4 @@ services:
       - "80:80"
 
 volumes:
-  pgdata:
+  pgdata_v2:
