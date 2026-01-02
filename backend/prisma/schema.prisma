@@ -1,0 +1,74 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+enum WalletRole {
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      UserRole @default(USER)
+  wallets   Wallet[] @relation("WalletCreator")
+  accesses  WalletUser[]
+  transactions Transaction[]
+  createdAt DateTime @default(now())
+}
+
+model Wallet {
+  id         String       @id @default(uuid())
+  name       String
+  createdBy  String
+  creator    User         @relation("WalletCreator", fields: [createdBy], references: [id])
+  members    WalletUser[]
+  transactions Transaction[]
+  createdAt  DateTime     @default(now())
+}
+
+model WalletUser {
+  walletId String
+  userId   String
+  role     WalletRole
+  wallet   Wallet @relation(fields: [walletId], references: [id])
+  user     User   @relation(fields: [userId], references: [id])
+
+  @@id([walletId, userId])
+}
+
+model Transaction {
+  id         String           @id @default(uuid())
+  walletId   String
+  userId     String
+  type       TransactionType
+  description String
+  amount     Decimal          @db.Decimal(12, 2)
+  timestamp  DateTime         @default(now())
+  synced     Boolean          @default(false)
+  updatedAt  DateTime         @updatedAt
+
+  wallet   Wallet @relation(fields: [walletId], references: [id])
+  user     User   @relation(fields: [userId], references: [id])
+
+  @@index([walletId])
+  @@index([userId])
+}
