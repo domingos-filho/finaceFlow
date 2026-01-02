@@ -46,6 +46,10 @@ router.post('/', async (req, res) => {
 
   for (const tx of transactions) {
     const existing = await prisma.transaction.findUnique({ where: { id: tx.id } });
+    if (existing && existing.walletId !== walletId) {
+      return res.status(403).json({ message: 'Transação não pertence a esta carteira' });
+    }
+
     if (!existing) {
       await prisma.transaction.create({
         data: {
