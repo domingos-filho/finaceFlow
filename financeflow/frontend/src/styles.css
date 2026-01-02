@@ -1,1 +1,0 @@
-:root { --bg: #0e1116; --card: #151922; --text: #f6f7fb; --muted: #a3adcc; --primary: #22c55e; --primary-700: #16a34a; --outline: #2a3040; } body { margin:0; font-family: Inter, system-ui, Segoe UI; color: var(--text); background: var(--bg);}
