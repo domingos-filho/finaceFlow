@@ -9,6 +9,7 @@
     "start": "node dist/index.js",
     "lint": "eslint . --ext .ts,.tsx",
     "prisma:generate": "prisma generate",
+    "prisma:deploy": "prisma migrate deploy",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio"
   },
@@ -20,6 +21,7 @@
     "express": "4.19.2",
     "jsonwebtoken": "9.0.2",
     "morgan": "1.10.0",
+    "prisma": "5.19.0",
     "zod": "3.23.8"
   },
   "devDependencies": {
@@ -32,7 +34,6 @@
     "eslint": "9.6.0",
     "eslint-config-prettier": "9.1.0",
     "eslint-plugin-import": "2.29.1",
-    "prisma": "5.19.0",
     "ts-node": "10.9.2",
     "ts-node-dev": "2.0.0",
     "typescript": "5.5.4"
