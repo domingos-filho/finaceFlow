@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Button, FlatList, SafeAreaView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { v4 as uuid } from 'uuid';
 
@@ -22,12 +22,11 @@ interface Props {
 }
 
 export const TransactionsScreen = ({ walletId, token, onBack }: Props) => {
-  const { syncNow, loading } = useSync(walletId, token);
   const [transactions, setTransactions] = useState<TransactionItem[]>([]);
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
 
-  const loadTransactions = () => {
+  const loadTransactions = useCallback(() => {
     db.readTransaction((tx) => {
       tx.executeSql(
         'SELECT * FROM transactions WHERE wallet_id = ? ORDER BY timestamp DESC',
@@ -35,11 +34,13 @@ export const TransactionsScreen = ({ walletId, token, onBack }: Props) => {
         (_, { rows }) => setTransactions(rows._array as TransactionItem[])
       );
     });
-  };
+  }, [walletId]);
+
+  const { syncNow, loading } = useSync(walletId, token, loadTransactions);
 
   useEffect(() => {
     loadTransactions();
-  }, []);
+  }, [loadTransactions]);
 
   const addTransaction = () => {
     const id = uuid();

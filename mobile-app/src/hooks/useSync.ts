@@ -16,7 +16,17 @@ export interface LocalTransaction {
   updated_at: string;
 }
 
-export const useSync = (walletId: string | null, token: string | null) => {
+interface ServerTransaction {
+  id: string;
+  walletId: string;
+  type: 'INCOME' | 'EXPENSE';
+  description: string;
+  amount: number | string;
+  timestamp: string;
+  updatedAt?: string;
+}
+
+export const useSync = (walletId: string | null, token: string | null, onSynced?: () => void) => {
   const [loading, setLoading] = useState(false);
 
   const fetchServer = useCallback(async () => {
@@ -27,7 +37,7 @@ export const useSync = (walletId: string | null, token: string | null) => {
     try {
       const response = await api.post('/sync', {
         walletId,
-        lastSyncedAt: lastSync,
+        ...(lastSync ? { lastSyncedAt: lastSync } : {}),
         transactions: unsynced.map((tx) => ({
           id: tx.id,
           type: tx.type,
@@ -38,9 +48,20 @@ export const useSync = (walletId: string | null, token: string | null) => {
         })),
       });
 
-      const serverTransactions = response.data.serverTransactions as LocalTransaction[];
+      const serverTransactions = (response.data.serverTransactions as ServerTransaction[]).map((tx) => ({
+        id: tx.id,
+        wallet_id: tx.walletId ?? walletId,
+        type: tx.type,
+        description: tx.description,
+        amount: Number(tx.amount),
+        timestamp: new Date(tx.timestamp).toISOString(),
+        synced: 1,
+        updated_at: tx.updatedAt ?? new Date().toISOString(),
+      }));
+
       await applyServerTransactions(serverTransactions, walletId);
       await markSynced(unsynced.map((tx) => tx.id));
+      onSynced?.();
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Sync error', error);
@@ -48,7 +69,7 @@ export const useSync = (walletId: string | null, token: string | null) => {
     } finally {
       setLoading(false);
     }
-  }, [walletId, token]);
+  }, [walletId, token, onSynced]);
 
   useEffect(() => {
     fetchServer();
@@ -92,11 +113,10 @@ const applyServerTransactions = (transactions: LocalTransaction[], walletId: str
       for (const serverTx of transactions) {
         tx.executeSql(
           `INSERT OR REPLACE INTO transactions (id, wallet_id, type, description, amount, timestamp, synced, updated_at)
-           VALUES (?, ?, ?, ?, ?, ?, 1, ?)`
-            ,
+           VALUES (?, ?, ?, ?, ?, ?, 1, ?)`,
           [
             serverTx.id,
-            walletId,
+            serverTx.wallet_id ?? walletId,
             serverTx.type,
             serverTx.description,
             serverTx.amount,
